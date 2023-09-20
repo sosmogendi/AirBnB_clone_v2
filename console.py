@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 """ Console Module """
+import unittest
+from console import HBNBCommand
 import cmd
 import sys
 from models.base_model import BaseModel
@@ -19,16 +21,16 @@ class HBNBCommand(cmd.Cmd):
     prompt = '(hbnb) ' if sys.__stdin__.isatty() else ''
 
     classes = {
-               'BaseModel': BaseModel, 'User': User, 'Place': Place,
-               'State': State, 'City': City, 'Amenity': Amenity,
-               'Review': Review
-              }
+        'BaseModel': BaseModel, 'User': User, 'Place': Place,
+        'State': State, 'City': City, 'Amenity': Amenity,
+        'Review': Review
+    }
     dot_cmds = ['all', 'count', 'show', 'destroy', 'update']
     types = {
-             'number_rooms': int, 'number_bathrooms': int,
-             'max_guest': int, 'price_by_night': int,
-             'latitude': float, 'longitude': float
-            }
+        'number_rooms': int, 'number_bathrooms': int,
+        'max_guest': int, 'price_by_night': int,
+        'latitude': float, 'longitude': float
+    }
 
     def preloop(self):
         """Prints if isatty is false"""
@@ -73,7 +75,7 @@ class HBNBCommand(cmd.Cmd):
                 pline = pline[2].strip()  # pline is now str
                 if pline:
                     # check for *args or **kwargs
-                    if pline[0] is '{' and pline[-1] is'}'\
+                    if pline[0] is '{' and pline[-1] is '}'\
                             and type(eval(pline)) is dict:
                         _args = pline
                     else:
@@ -112,19 +114,50 @@ class HBNBCommand(cmd.Cmd):
     def emptyline(self):
         """ Overrides the emptyline method of CMD """
         pass
+    import unittest
 
-    def do_create(self, args):
-        """ Create an object of any class"""
-        if not args:
-            print("** class name missing **")
-            return
-        elif args not in HBNBCommand.classes:
-            print("** class doesn't exist **")
-            return
-        new_instance = HBNBCommand.classes[args]()
-        storage.save()
-        print(new_instance.id)
-        storage.save()
+
+class TestCreateCommand(unittest.TestCase):
+
+    def test_create_valid_string_param(self):
+        # Test creating an object with a valid string parameter
+        cmd = HBNBCommand()
+        cmd.onecmd("create BaseModel name=\"My_little_house\"")
+        self.assertIn("My little house", cmd.do_show("BaseModel 1"))
+
+    def test_create_valid_float_param(self):
+        # Test creating an object with a valid float parameter
+        cmd = HBNBCommand()
+        cmd.onecmd("create BaseModel price=99.99")
+        self.assertIn("99.99", cmd.do_show("BaseModel 1"))
+
+    def test_create_valid_integer_param(self):
+        # Test creating an object with a valid integer parameter
+        cmd = HBNBCommand()
+        cmd.onecmd("create BaseModel quantity=42")
+        self.assertIn("42", cmd.do_show("BaseModel 1"))
+
+    def test_create_invalid_param(self):
+        # Test creating an object with an invalid parameter
+        cmd = HBNBCommand()
+        result = cmd.onecmd("create BaseModel invalid_param")
+        self.assertIn("Skipping invalid parameter:", result)
+
+    def test_create_missing_class_name(self):
+        # Test creating an object with a missing class name
+        cmd = HBNBCommand()
+        result = cmd.onecmd("create")
+        self.assertIn("** class name missing **", result)
+
+    def test_create_nonexistent_class(self):
+        # Test creating an object with a nonexistent class name
+        cmd = HBNBCommand()
+        result = cmd.onecmd("create NonExistentClass")
+        self.assertIn("** class doesn't exist **", result)
+
+
+if __name__ == "__main__":
+    unittest.main()
 
     def help_create(self):
         """ Help information for the create method """
@@ -187,7 +220,7 @@ class HBNBCommand(cmd.Cmd):
         key = c_name + "." + c_id
 
         try:
-            del(storage.all()[key])
+            del (storage.all()[key])
             storage.save()
         except KeyError:
             print("** no instance found **")
@@ -319,6 +352,7 @@ class HBNBCommand(cmd.Cmd):
         """ Help information for the update class """
         print("Updates an object with new information")
         print("Usage: update <className> <id> <attName> <attVal>\n")
+
 
 if __name__ == "__main__":
     HBNBCommand().cmdloop()
