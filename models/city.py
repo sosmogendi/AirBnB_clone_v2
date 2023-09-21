@@ -1,20 +1,17 @@
 #!/usr/bin/python3
-
-"""This is the city class"""
+"""This is the City class."""
 from sqlalchemy import String, DateTime, Column, ForeignKey
 from sqlalchemy.orm import relationship
 from models.base_model import BaseModel, Base
 
 class City(BaseModel, Base):
-    """This is the class for City
+    """This is the class for City objects.
     Attributes:
         state_id: The state id
-        name: the name
+        name: input name
     """
     __tablename__ = 'cities'
-    
-    # Renamed variables
-    city_name = Column(String(128), nullable=False)
+    name = Column(String(128), nullable=False)
     state_id = Column(String(60), ForeignKey('states.id'), nullable=False)
-    places_relationship = relationship('Place', backref='city',
-                                       cascade='all, delete-orphan')
+    places = relationship('Place', backref='cities',
+                          cascade='all, delete-orphan')

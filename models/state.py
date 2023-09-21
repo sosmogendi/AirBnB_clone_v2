@@ -1,6 +1,5 @@
 #!/usr/bin/python3
-
-"""This is the state class"""
+"""This is the State class."""
 from os import getenv
 from sqlalchemy import String, DateTime, Column, ForeignKey
 from sqlalchemy.orm import relationship
@@ -9,9 +8,10 @@ from models.base_model import BaseModel, Base
 from models.city import City
 
 class State(BaseModel, Base):
-    """This is the class for State
+    """This class represents the State model.
+    
     Attributes:
-        name: The name of the state
+        name (str): The name of the state.
     """
     __tablename__ = 'states'
     name = Column(String(128), nullable=False)
@@ -22,6 +22,6 @@ class State(BaseModel, Base):
     else:
         @property
         def cities(self):
-            """Getter attribute in case of file storage"""
+            """Getter attribute in case of file storage."""
             return [city for city in models.storage.all(City).values()
                     if city.state_id == self.id]

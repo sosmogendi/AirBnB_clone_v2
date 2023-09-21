@@ -1,52 +1,70 @@
 #!/usr/bin/python3
-""" """
-from tests.test_models.test_base_model import test_basemodel
-from models.state import State
+"""test for state"""
 import unittest
-import MySQLdb
+import os
+from os import getenv
+from models.state import State
+from models.base_model import BaseModel
+import pep8
 
-class test_state(test_basemodel):
-    """ """
 
-    def __init__(self, *args, **kwargs):
-        """ """
-        super().__init__(*args, **kwargs)
-        self.name = "State"
-        self.value = State
+class TestState(unittest.TestCase):
+    """this will test the State class"""
 
-    def test_name3(self):
-        """ """
-        new = self.value()
-        self.assertEqual(type(new.name), str)
-class TestCreateStateCommand(unittest.TestCase):
-    def setUp(self):
-        # Connect to your database and create a cursor
-        self.db = MySQLdb.connect(
-            host='localhost',
-            user='hbnb_test',
-            passwd='hbnb_test_pwd',
-            db='hbnb_test_db'
-        )
-        self.cursor = self.db.cursor()
+    @classmethod
+    def setUpClass(cls):
+        """set up for test"""
+        cls.state = State()
+        cls.state.name = "CA"
+
+    @classmethod
+    def teardown(cls):
+        """at the end of the test this will tear it down"""
+        del cls.state
 
     def tearDown(self):
-        # Close the database connection
-        self.db.close()
+        """teardown"""
+        try:
+            os.remove("file.json")
+        except Exception:
+            pass
 
-    def test_create_state_command(self):
-        # Step 1: Get the initial number of records
-        self.cursor.execute("SELECT COUNT(*) FROM states")
-        initial_count = self.cursor.fetchone()[0]
+    def test_pep8_Review(self):
+        """Tests pep8 style"""
+        style = pep8.StyleGuide(quiet=True)
+        p = style.check_files(['models/state.py'])
+        self.assertEqual(p.total_errors, 0, "fix pep8")
 
-        # Step 2: Execute the console command
-        # Replace this with the actual console command execution code
+    def test_checking_for_docstring_State(self):
+        """checking for docstrings"""
+        self.assertIsNotNone(State.__doc__)
 
-        # Step 3: Get the number of records again
-        self.cursor.execute("SELECT COUNT(*) FROM states")
-        final_count = self.cursor.fetchone()[0]
+    def test_attributes_State(self):
+        """chekcing if State have attributes"""
+        self.assertTrue('id' in self.state.__dict__)
+        self.assertTrue('created_at' in self.state.__dict__)
+        self.assertTrue('updated_at' in self.state.__dict__)
+        self.assertTrue('name' in self.state.__dict__)
 
-        # Step 4: Assertion
-        self.assertEqual(final_count - initial_count, 1)
+    def test_is_subclass_State(self):
+        """test if State is subclass of BaseModel"""
+        self.assertTrue(issubclass(self.state.__class__, BaseModel), True)
 
-if __name__ == '__main__':
+    def test_attribute_types_State(self):
+        """test attribute type for State"""
+        self.assertEqual(type(self.state.name), str)
+
+    @unittest.skipIf(getenv("HBNB_TYPE_STORAGE") == "db",
+                     "can't run if storage is db")
+    def test_save_State(self):
+        """test if the save works"""
+        self.state.save()
+        self.assertNotEqual(self.state.created_at, self.state.updated_at)
+
+    def test_to_dict_State(self):
+        """test if dictionary works"""
+        self.assertEqual('to_dict' in dir(self.state), True)
+
+
+if __name__ == "__main__":
     unittest.main()

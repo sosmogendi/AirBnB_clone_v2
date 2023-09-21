@@ -1,6 +1,5 @@
 #!/usr/bin/python3
-"""This is the database storage class for AirBnB"""
-
+"""This is the database storage class for the AirBnB project."""
 import datetime
 from os import getenv
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -13,16 +12,15 @@ from models.amenity import Amenity
 from models.place import Place
 from models.review import Review
 
-
-class DBStorage:
+class DBStorage():
     """
-    Database Engine for AirBnB project
+    Database Engine for the AirBnB project
     """
     __engine = None
     __session = None
 
     def __init__(self):
-        """Initialize the database engine and session"""
+        """Initialize the database storage class"""
         self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'
                                       .format(getenv('HBNB_MYSQL_USER'),
                                               getenv('HBNB_MYSQL_PWD'),
@@ -36,20 +34,20 @@ class DBStorage:
         """Returns a dictionary with all objects depending
         on the class name (argument cls)"""
         if cls:
-            query = self.__session.query(self.classes()[cls])
+            objs = self.__session.query(self.classes()[cls])
         else:
-            query = self.__session.query(State).all()
-            query += self.__session.query(City).all()
-            query += self.__session.query(User).all()
-            query += self.__session.query(Place).all()
-            query += self.__session.query(Amenity).all()
-            query += self.__session.query(Review).all()
+            objs = self.__session.query(State).all()
+            objs += self.__session.query(City).all()
+            objs += self.__session.query(User).all()
+            objs += self.__session.query(Place).all()
+            objs += self.__session.query(Amenity).all()
+            objs += self.__session.query(Review).all()
 
-        objects_dict = {}
-        for obj in query:
+        obj_dict = {}
+        for obj in objs:
             key = '{}.{}'.format(type(obj).__name__, obj.id)
-            objects_dict[key] = obj
-        return objects_dict
+            obj_dict[key] = obj
+        return obj_dict
 
     def new(self, obj):
         """Add the object to the current
@@ -62,7 +60,7 @@ class DBStorage:
         self.__session.commit()
 
     def delete(self, obj=None):
-        """Delete from the current database session obj if not None"""
+        """Delete obj from the current database session if not None"""
         if obj:
             self.__session.delete(obj)
 
@@ -79,8 +77,8 @@ class DBStorage:
         Base.metadata.create_all(self.__engine)
         self.__session = sessionmaker(bind=self.__engine,
                                       expire_on_commit=False)
-        scoped = scoped_session(self.__session)
-        self.__session = scoped()
+        Session = scoped_session(self.__session)
+        self.__session = Session()
 
     def close(self):
         """Remove the session"""
@@ -106,7 +104,7 @@ class DBStorage:
         return classes
 
     def attributes(self):
-        """Return the valid attributes and their types for classname."""
+        """Return the valid attributes and their types for a classname."""
         attributes = {
             "BaseModel":
                      {"id": str,
@@ -138,7 +136,7 @@ class DBStorage:
                       "amenity_ids": list},
             "Review":
             {"place_id": str,
-             "user_id": str,
-             "text": str}
+                         "user_id": str,
+                         "text": str}
         }
         return attributes

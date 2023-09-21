@@ -1,8 +1,8 @@
 #!/usr/bin/python3
-""" Place Module for HBNB project """
-
+"""This is the Place class."""
 from sqlalchemy import String, DateTime
-from sqlalchemy import Column, ForeignKey, Integer, Float, Table
+from sqlalchemy import Column, ForeignKey, Integer
+from sqlalchemy import Float, Table
 from sqlalchemy.orm import relationship
 import models
 from models.base_model import BaseModel, Base
@@ -23,18 +23,18 @@ if getenv("HBNB_TYPE_STORAGE") == "db":
                                  primary_key=True, nullable=False))
 
 class Place(BaseModel, Base):
-    """This is the class for Place
+    """This is the class for Place objects.
     Attributes:
-        city_id: the city id
-        user_id: the user id
-        name: name
-        description: string of description
-        number_rooms: no. of rooms as int
-        number_bathrooms: number of bathrooms as int
-        max_guest: maximum guest capacity as int
-        price_by_night: price per night as int
-        latitude: latitude as float
-        longitude: longitude as float
+        city_id: city id
+        user_id: user id
+        name: name input
+        description: string description
+        number_rooms: number of rooms as an int
+        number_bathrooms: number of bathrooms as an int
+        max_guest: maximum guest as an int
+        price_by_night: price for a stay as an int
+        latitude: latitude as a float
+        longitude: longitude as a float
         amenity_ids: list of Amenity ids
     """
     __tablename__ = 'places'
@@ -59,18 +59,18 @@ class Place(BaseModel, Base):
     else:
         @property
         def reviews(self):
-            """Getter attribute in case of file storage"""
+            """Getter attribute in case of file storage."""
             return [review for review in models.storage.all(Review)
                     if review.place_id == self.id]
 
         @property
         def amenities(self):
-            """Getter attribute in case of file storage"""
+            """Getter attribute in case of file storage."""
             return [amenity for amenity in models.storage.all(Amenity)
                     if amenity.id in self.amenity_ids]
 
         @amenities.setter
         def amenities(self, obj):
-            """Setter method for amenities"""
+            """Setter method for amenities."""
             if (type(obj) == Amenity):
                 self.amenity_ids.append(obj.id)

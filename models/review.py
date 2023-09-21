@@ -1,15 +1,13 @@
 #!/usr/bin/python3
-""" Review module for the HBNB project """
-
+"""This is the Review class."""
 from models.base_model import BaseModel, Base
 from sqlalchemy import Column, String, ForeignKey
 
-
 class Review(BaseModel, Base):
-    """This is the class for Review
+    """This is the class for Review objects.
     Attributes:
-        place_id: the place id
-        user_id: the user id
+        place_id: place id
+        user_id: user id
         text: review description
     """
     __tablename__ = "reviews"

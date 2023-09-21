@@ -1,18 +1,16 @@
 #!/usr/bin/python3
-"""This module defines a class User"""
-
+"""This is the User class."""
 from models.base_model import BaseModel, Base
 from sqlalchemy import String, DateTime, Column, ForeignKey
 from sqlalchemy.orm import relationship
 
-
 class User(BaseModel, Base):
-    """This is the class for User
+    """This is the class for User objects.
     Attributes:
-        email: email address
-        password: password to use for your login
-        first_name: the first name
-        last_name: the last name
+        email (str): email address
+        password (str): password for login
+        first_name (str): first name
+        last_name (str): last name
     """
     __tablename__ = 'users'
 
