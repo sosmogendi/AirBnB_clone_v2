@@ -1,26 +1,33 @@
 #!/usr/bin/python3
-"""This is the state class"""
 from sqlalchemy.ext.declarative import declarative_base
 from models.base_model import BaseModel, Base
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, String
 import models
 from models.city import City
-import shlex
 
 
 class State(BaseModel, Base):
-    """This is the class for State
+    """This is the class for State.
+
     Attributes:
-        name: input name
+        name (str): The name of the state.
     """
+
     __tablename__ = "states"
     name = Column(String(128), nullable=False)
-    cities = relationship("City", cascade='all, delete, delete-orphan',
-                          backref="state")
 
+    # For DBStorage
+    cities = relationship("City", cascade='all, delete', backref="state")
+
+    # For FileStorage, the getter attribute cities can remain as-is
     @property
     def cities(self):
+        """Getter attribute to retrieve a list of City instances associated with this state.
+
+        Returns:
+            list: A list of City instances.
+        """
         var = models.storage.all()
         lista = []
         result = []
