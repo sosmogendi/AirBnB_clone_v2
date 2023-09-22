@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import shlex
 from sqlalchemy.ext.declarative import declarative_base
 from models.base_model import BaseModel, Base
 from sqlalchemy.orm import relationship
