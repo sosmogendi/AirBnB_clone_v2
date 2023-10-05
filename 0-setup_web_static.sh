@@ -1,62 +1,33 @@
-#!/usr/bin/env bash
-# Installs, configures, and starts the web server
-SERVER_CONFIG="server {
-	listen 80 default_server;
-	listen [::]:80 default_server;
+sh script to set up web servers for deployment of web_static
 
-	server_name _;
-	index index.html index.htm;
-	error_page 404 /404.html;
-	add_header X-Served-By \$hostname;
+# Update and install Nginx if not already installed
+sudo apt-get -y update
+sudo apt-get -y install nginx
 
-	location / {
-		root /var/www/html/;
-		try_files \$uri \$uri/ =404;
-	}
+# Create required directories if they don't exist
+sudo mkdir -p /data/web_static/releases/test/
+sudo mkdir -p /data/web_static/shared/
 
-	location /hbnb_static/ {
-		alias /data/web_static/current/;
-		try_files \$uri \$uri/ =404;
-	}
+# Create a fake HTML file for testing Nginx configuration
+echo "<html>
+  <head>
+  </head>
+  <body>
+    Holberton School
+  </body>
+</html>" | sudo tee /data/web_static/releases/test/index.html > /dev/null
 
-	if (\$request_filename ~ redirect_me) {
-		rewrite ^ https://sketchfab.com/bluepeno/models permanent;
-	}
+# Create or recreate symbolic link
+sudo ln -sf /data/web_static/releases/test/ /data/web_static/current
 
-	location = /404.html {
-		root /var/www/error/;
-		internal;
-	}
-}"
-HOME_PAGE="<!DOCTYPE html>
-<html lang='en-US'>
-	<head>
-		<title>Home - AirBnB Clone</title>
-	</head>
-	<body>
-		<h1>Welcome to AirBnB!</h1>
-	<body>
-</html>
-"
-# shellcheck disable=SC2230
-if [[ "$(which nginx | grep -c nginx)" == '0' ]]; then
-    apt-get update
-    apt-get -y install nginx
-fi
-mkdir -p /var/www/html /var/www/error
-chmod -R 755 /var/www
-echo 'Hello World!' > /var/www/html/index.html
-echo -e "Ceci n\x27est pas une page" > /var/www/error/404.html
+# Give ownership of the /data/ folder and subdirectories to ubuntu user and group recursively
+sudo chown -R ubuntu:ubuntu /data/
 
-mkdir -p /data/web_static/releases/test /data/web_static/shared
-echo -e "$HOME_PAGE" > /data/web_static/releases/test/index.html
-[ -d /data/web_static/current ] && rm -rf /data/web_static/current
-ln -sf /data/web_static/releases/test/ /data/web_static/current
-chown -hR ubuntu:ubuntu /data
-bash -c "echo -e '$SERVER_CONFIG' > /etc/nginx/sites-available/default"
-ln -sf '/etc/nginx/sites-available/default' '/etc/nginx/sites-enabled/default'
-if [ "$(pgrep -c nginx)" -le 0 ]; then
-	service nginx start
-else
-	service nginx restart
-fi
+# Update Nginx configuration to serve content from /data/web_static/current/
+sudo sed -i "s@server_name _;@server_name _;\n\n\tlocation /hbnb_static/ {\n\t\talias /data/web_static/current/;\n\t}\n@" /etc/nginx/sites-available/default
+
+# Restart Nginx to apply the changes
+sudo service nginx restart
+
+# Exit successfully
+exit 0
